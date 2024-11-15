@@ -1,33 +1,31 @@
-#1. In the accounts table, there's a column with each company's website. The last three characters 
+--Data cleaning
+/*1. In the accounts table, there's a column with each company's website. The last three characters 
 #indicate the type of web address. Extract these extensions and count how many of each type 
-#exist in the accounts table.
+#exist in the accounts table*/.
 
 SELECT RIGHT(website, 3) extensions, COUNT(website) number_of_extensions
 FROM accounts
 GROUP BY 1;
 
-#2. There's a lot of discussion about the impact of a company's name (or even the first letter). Use 
+/*2. There's a lot of discussion about the impact of a company's name (or even the first letter). Use 
 #the accounts table to extract the first letter of each company name and analyze the distribution 
-#of company names starting with each letter (or number).
+#of company names starting with each letter (or number)*/.
 
 SELECT SUBSTR(name, 1,1) first_letter, COUNT(name) distribution
 FROM accounts
 GROUP BY 1;
 
-#3. Use the accounts table and a CASE statement to create two groups: one with company names 
+/*3. Use the accounts table and a CASE statement to create two groups: one with company names 
 #starting with a number and the other with names starting with a letter. Determine the 
-#proportion of company names that begin with a letter.
+#proportion of company names that begin with a letter*/.
 
-SELECT CASE 
-       WHEN SUBSTR(name, 1,1) BETWEEN '0' AND '9' THEN 'number' ELSE 'letter' END AS 'company_group', 
-       COUNT(name) number_of_name,
-       100 * COUNT(*)/(SELECT COUNT(*) FROM accounts) proportion
-FROM accounts
-GROUP BY 1
-;
+SELECT SUM(num) nums, SUM(letter) letters
+FROM (SELECT name, CASE WHEN LEFT(UPPER(name), 1) IN ('0','1','2','3','4','5','6','7','8','9') THEN 1 ELSE 0 END AS num, 
+		   CASE WHEN LEFT(UPPER(name), 1) IN ('0','1','2','3','4','5','6','7','8','9') THEN 0 ELSE 1 END AS letter
+     FROM accounts) num_name;
 
-#4. Consider vowels as a, e, i, o, and u. Calculate the proportion of company names that start with a 
-#vowel and the percentage that start with other characters.
+/*4. Consider vowels as a, e, i, o, and u. Calculate the proportion of company names that start with a 
+#vowel and the percentage that start with other characters*/.
 
 SELECT 
         CASE 
@@ -37,20 +35,20 @@ SELECT
 FROM accounts
 GROUP BY 1;
 
-#5. Use the accounts table to split the primary_poc field into separate first and last name columns.
+/*5. Use the accounts table to split the primary_poc field into separate first and last name columns*/.
 
 SELECT SUBSTR(primary_poc, 1, INSTR(primary_poc, ' ')-1) first_name,
        SUBSTR(primary_poc, INSTR(primary_poc, ' ')+1) last_name
 FROM accounts;
 
-#6. Do the same for every rep name in the sales_reps table, creating first and last name columns
+/*6. Do the same for every rep name in the sales_reps table, creating first and last name columns*/
 
 SELECT SUBSTR(name, 1, INSTR(name, ' ')-1) first_name,
        SUBSTR(name, INSTR(name, ' ')+1) last_name
 FROM sales_reps;
 
-#7. Each company in the accounts table wants to create an email address for their primary_poc. The 
-#email should follow the format: firstname.lastname@companyname.com.
+/*7. Each company in the accounts table wants to create an email address for their primary_poc. The 
+#email should follow the format: firstname.lastname@companyname.com.*/
 SELECT CONCAT(
        SUBSTR(primary_poc, 1, INSTR(primary_poc, ' ')-1), '.',
        SUBSTR(primary_poc, INSTR(primary_poc, ' ')+1), '@', 
@@ -58,9 +56,9 @@ SELECT CONCAT(
        ) email
 FROM accounts;
 
-#8. Some company names include spaces, which won't work in an email address. Create a valid 
+/*8. Some company names include spaces, which won't work in an email address. Create a valid 
 #email address by removing all spaces from the company name while following the same format 
-#as the previous question.
+#as the previous question.*/
 
 SELECT CONCAT(
        SUBSTR(primary_poc, 1, INSTR(primary_poc, ' ')-1), '.',
@@ -70,11 +68,11 @@ SELECT CONCAT(
        ) email
 FROM accounts;
 
-#9. Create an initial password for each primary_poc, which they will change after their first login. 
+/*9. Create an initial password for each primary_poc, which they will change after their first login. 
 #The password should be: the first letter of their first name (lowercase), the last letter of their first 
 #name (lowercase), the first letter of their last name (lowercase), the last letter of their last name 
 #(lowercase), the number of letters in their first name, the number of letters in their last name, 
-#and the company name (uppercase with no spaces)
+#and the company name (uppercase with no spaces)*/
 
 SELECT CONCAT(
        LOWER(SUBSTR(primary_poc,1,1)),  -- step 1- create first letter of first name(lowercase)
@@ -90,75 +88,75 @@ SELECT CONCAT(
 	 ) initial_password
 FROM accounts;
 
-#windows function
-#1. Create a running total of standard_amt_usd from the orders table over order time without 
+-- Window functions
+/*1. Create a running total of standard_amt_usd from the orders table over order time without 
 #truncating the date. Your final table should include two columns: one for the amount added with 
-#each new row and another for the running total.
+#each new row and another for the running total.*/
 
 SELECT standard_amt_usd, 
        SUM(standard_amt_usd) OVER date running_total
 FROM orders
 WINDOW date AS (ORDER BY occurred_at);
 
-#2. Modify your query from the previous task to include partitions. Create a running total of 
+/*2. Modify your query from the previous task to include partitions. Create a running total of 
 #standard_amt_usd from the orders table over order time, truncating the occurred_at date by 
-#year and partitioning by the year-truncated occurred_at variable.
+#year and partitioning by the year-truncated occurred_at variable.*/
 
 SELECT DATE_FORMAT(occurred_at, '%Y') year, standard_amt_usd,
        SUM(standard_amt_usd) OVER date running_total
 FROM orders
 WINDOW date AS (PARTITION BY DATE_FORMAT(occurred_at, '%Y') ORDER BY occurred_at);
 
-#3. Select the id, account_id, and total from the orders table, then create a column called total_rank 
+/*3. Select the id, account_id, and total from the orders table, then create a column called total_rank 
 #that ranks the total amount of paper ordered (from highest to lowest) for each account using a 
-#partition. Your final table should include these four columns.
+#partition. Your final table should include these four columns.*/
 
 SELECT id, account_id, total,
        RANK() OVER total_order total_rank
 FROM orders
 WINDOW total_order AS (PARTITION BY account_id ORDER BY total DESC);
 
-#4. Use the NTILE function to divide the accounts into four levels based on the amount of 
+/*4. Use the NTILE function to divide the accounts into four levels based on the amount of 
 #standard_qty in their orders. Your resulting table should include the account_id, the occurred_at 
 #time for each order, the total amount of standard_qty paper purchased, and one of four levels in 
-#a standard_quartile column.
+#a standard_quartile column.*/
 
 WITH total_standard_order AS (
-					     SELECT account_id, occurred_at, SUM(standard_qty) total_standard_qty
-					     FROM orders
-					     GROUP BY 1,2
-						 )
+			       SELECT account_id, occurred_at, SUM(standard_qty) total_standard_qty
+			       FROM orders
+			       GROUP BY 1,2
+			      )
  SELECT account_id, occurred_at, total_standard_qty,
         NTILE(4) OVER total_stand standard_quartile
 FROM total_standard_order
 WINDOW total_stand AS (ORDER BY total_standard_qty);
 
-#5. Use the NTILE functionality to divide the accounts into two levels in terms of the amount of 
+/*5. Use the NTILE functionality to divide the accounts into two levels in terms of the amount of 
 #gloss_qty for their orders. Your resulting table should have the account_id, the occurred_at time 
 #for each order, the total amount of gloss_qty paper purchased, and one of two levels in a 
-#gloss_half column.
+#gloss_half column.*/
 
 WITH total_gloss_order AS (
-					     SELECT account_id, occurred_at, SUM(gloss_qty) total_gloss_qty
-					     FROM orders
-					     GROUP BY 1,2
-						 )
+			   SELECT account_id, occurred_at, SUM(gloss_qty) total_gloss_qty
+			   FROM orders
+			   GROUP BY 1,2
+			   )
  SELECT account_id, occurred_at, total_gloss_qty,
         NTILE(2) OVER total_gloss gloss_half
 FROM total_gloss_order
 WINDOW total_gloss AS (ORDER BY total_gloss_qty);
 
-#6. Use an alias for each window function you wrote in all of the queries above.
+/*6. Use an alias for each window function you wrote in all of the queries above.
 #Use the NTILE functionality to divide the orders for each account into 100 levels in terms of the amount 
 #of total_amt_usd for their orders. Your resulting table should have the account_id, the occurred_at time 
 #for each order, the total amount of total_amt_usd paper purchased, and one of 100 levels in a 
-#total_percentile column
+#total_percentile column*/
 
 WITH total_amt AS (
-			   SELECT account_id, occurred_at, SUM(total_amt_usd) total_sales
-			   FROM orders
-			   GROUP BY 1,2
-			   )
+		   SELECT account_id, occurred_at, SUM(total_amt_usd) total_sales
+		   FROM orders
+		   GROUP BY 1,2
+		   )
  SELECT account_id, occurred_at, total_sales,
         NTILE(100) OVER total_amount total_percentile
 FROM total_amt
