@@ -21,11 +21,11 @@ Analyze how company names are distributed by their first character (letter or nu
 3. Classification by Name Type
 Use a CASE statement to classify company names:
 
- - Starting with numbers
+  - Starting with numbers
 
- - Starting with letters
+  - Starting with letters
 
- - Calculate proportions for each group.
+  - Calculate proportions for each group.
 
 4. Vowel vs Other Starters
 Segment companies based on whether their names begin with a vowel or not.
