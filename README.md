@@ -1,18 +1,15 @@
-# SQL Data Cleaning and Transformation – Parch & Posey Case Study
-
-This project demonstrates a series of SQL-based data cleaning and transformation tasks using a fictional business dataset for Parch & Posey, a paper supply company.
-
-### About Parch & Posey
-Parch & Posey is a fictional paper company created for educational purposes, often featured in SQL and analytics learning platforms. It includes tables such as accounts, sales_reps, and more, designed to mimic the structure of real business data.
+# SQL Data Cleaning – Parch & Posey project
+### Introduction
+This project demonstrates core SQL data cleaning techniques applied to a customer and sales dataset. The objective is to clean, structure, and transform raw business data for downstream analysis, communication workflows, and operational readiness.
 
 ### Project Overview
 This repository contains SQL scripts that:
 
-Clean, parse, and analyze text-based data.
+Clean, parse, and analyze data.
 
-Transform fields for reporting and communication needs.
+Generate cleaned fields such as names, email addresses, and formatted passwords.
 
-Perform exploratory transformations useful for business analytics.
+Apply string manipulation, conditional logic, and aggregation using SQL.
 
 ### Tasks Breakdown
 1. Domain Extension Analysis
