@@ -5,11 +5,11 @@ This project demonstrates core SQL data cleaning techniques applied to a custome
 ### Project Overview
 This repository contains SQL scripts that:
 
-Clean, parse, and analyze data.
+- Clean, parse, and analyze data.
 
-Generate cleaned fields such as names, email addresses, and formatted passwords.
+- Generate cleaned fields such as names, email addresses, and formatted passwords.
 
-Apply string manipulation, conditional logic, and aggregation using SQL.
+- Apply string manipulation, conditional logic, and aggregation using SQL.
 
 ### Tasks Breakdown
 1. Domain Extension Analysis
@@ -21,11 +21,11 @@ Analyze how company names are distributed by their first character (letter or nu
 3. Classification by Name Type
 Use a CASE statement to classify company names:
 
-- Starting with numbers
+ - Starting with numbers
 
-- Starting with letters
+ - Starting with letters
 
-- Calculate proportions for each group.
+ - Calculate proportions for each group.
 
 4. Vowel vs Other Starters
 Segment companies based on whether their names begin with a vowel or not.
